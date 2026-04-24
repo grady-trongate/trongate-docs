@@ -134,47 +134,95 @@
   </table>
 
   <h2>Example #1</h2>
-  <p>Basic usage — paginate blog posts with 10 per page and display a showing statement.</p>
-[code=php]public function index(): void {
-    $sql = 'SELECT * FROM blog_posts ORDER BY date_created DESC';
-    $total_rows = $this-&gt;db-&gt;query($sql, ['count'])-&gt;total;
-    $limit = 10;
-    $offset = (segment(2, 'int') - 1) * $limit;
+  <p>Controller method demonstrating pagination setup for a tasks module. The pagination data is prepared in a private helper method and passed to the view. Pagination is rendered in the view using <code>Modules::run()</code>.</p>
+[code=php]class Tasks extends Trongate {
 
-    $data['body'] = $this-&gt;db-&gt;query($sql . " LIMIT $limit OFFSET $offset", ['result']);
+    private int $default_limit = 20;
+    private array $per_page_options = [10, 20, 50, 100];
 
-    $pagination_data['total_rows'] = $total_rows;
-    $pagination_data['limit'] = $limit;
-    $pagination_data['record_name_plural'] = 'blog posts';
-    $pagination_data['include_showing_statement'] = true;
+    public function manage(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
 
-    $data['pagination'] = $this-&gt;pagination-&gt;display($pagination_data);
+        $limit = $this-&gt;get_limit();
+        $rows = $this-&gt;model-&gt;fetch_records($limit, $this-&gt;get_offset());
 
-    $this-&gt;templates-&gt;public($data);
+        $data = [
+            'rows' =&gt; $rows,
+            'pagination_data' =&gt; $this-&gt;get_pagination_data($limit),
+            'view_module' =&gt; 'tasks',
+            'view_file' =&gt; 'manage'
+        ];
+
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    private function get_pagination_data(int $limit): array {
+        return [
+            'total_rows' =&gt; $this-&gt;model-&gt;count_all(),
+            'page_num_segment' =&gt; 3,
+            'limit' =&gt; $limit,
+            'pagination_root' =&gt; 'tasks/manage',
+            'record_name_plural' =&gt; 'tasks',
+            'include_showing_statement' =&gt; true
+        ];
+    }
+
+    private function get_limit(): int {
+        // Returns records-per-page from session or default
+        return $_SESSION['selected_per_page'] ?? $this-&gt;default_limit;
+    }
+
+    private function get_offset(): int {
+        $page_num = segment(3, 'int');
+        return ($page_num &gt; 1) ? ($page_num - 1) * $this-&gt;get_limit() : 0;
+    }
 }[/code]
 
   <h2>Example #2</h2>
-  <p>Using a custom showing statement with placeholders and custom HTML settings for styling.</p>
-[code=php]$pagination_data['total_rows'] = 256;
-$pagination_data['limit'] = 20;
-$pagination_data['record_name_plural'] = 'products';
-$pagination_data['include_showing_statement'] = true;
-$pagination_data['showing_statement'] = 'Viewing {start}-{end} of {total} products';
-$pagination_data['num_links_per_page'] = 5;
-$pagination_data['settings']['pagination_open'] = '&lt;nav class="my-pagination"&gt;';
-$pagination_data['settings']['pagination_close'] = '&lt;/nav&gt;';
-$pagination_data['settings']['cur_link_open'] = '&lt;span class="active"&gt;';
-$pagination_data['settings']['cur_link_close'] = '&lt;/span&gt;';
-$pagination_data['settings']['first_link'] = '« First';
-$pagination_data['settings']['last_link'] = 'Last »';
-$this-&gt;pagination-&gt;display($pagination_data);[/code]
+  <p>View file (manage.php) showing how pagination is rendered. The pagination controls appear both above and below the records table. The <code>include_showing_statement</code> key is removed from the second call to avoid duplicate output.</p>
+[code=php]&lt;h1&gt;Manage Tasks&lt;/h1&gt;
+
+&lt;?php
+echo Modules::run('pagination/display', $pagination_data);
+?&gt;
+
+&lt;table class="records-table"&gt;
+    &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Task Title&lt;/th&gt;
+            &lt;th&gt;Complete&lt;/th&gt;
+            &lt;th&gt;Action&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;?php foreach($rows as $row) { ?&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;?= out($row-&gt;task_title) ?&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;?= out($row-&gt;complete_formatted) ?&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;?= anchor('tasks/show/'.$row-&gt;id, 'View') ?&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;?php } ?&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;?php
+// Second pagination block below table (without showing statement)
+unset($pagination_data['include_showing_statement']);
+echo Modules::run('pagination/display', $pagination_data);
+?&gt;[/code]
 
   <h2>Example #3</h2>
-  <p>Auto-detected pagination — the module determines the current page and pagination root from the URL automatically.</p>
-[code=php]$pagination_data['total_rows'] = 1200;
-$pagination_data['limit'] = 15;
-$pagination_data['record_name_plural'] = 'images';
-$pagination_data['include_showing_statement'] = true;
-$this-&gt;pagination-&gt;display($pagination_data);[/code]
+  <p>Customising pagination output with a showing statement that uses placeholders. The <code>showing_statement</code> key accepts <code>{start}</code>, <code>{end}</code>, and <code>{total}</code> as dynamic placeholders.</p>
+[code=php]$pagination_data = [
+    'total_rows' =&gt; $total_rows,
+    'limit' =&gt; 15,
+    'page_num_segment' =&gt; 3,
+    'pagination_root' =&gt; 'products/manage',
+    'record_name_plural' =&gt; 'products',
+    'include_showing_statement' =&gt; true,
+    'showing_statement' =&gt; 'Viewing {start} to {end} of {total} products'
+];
+
+echo Modules::run('pagination/display', $pagination_data);[/code]
 
 </div>
