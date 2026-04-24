@@ -1,228 +1,420 @@
 <div class="container">
-  <h1>display()</h1>
-  <p class="signature">public function display(array $pagination_data): void</p>
+ <h1>display()</h1>
+ <p class="signature">public function display(array $pagination_data): void</p>
 
-  <h2>Description</h2>
-  <div class="description">
-    <p>
-      Renders pagination navigation controls with optional "Showing" statement. This method processes the pagination configuration through the model layer for validation, then outputs the complete pagination HTML. The method handles all link types — First, Previous, numbered pages, Next, and Last — with automatically detected or explicitly specified URL roots.
-    </p>
-    <p>
-      If the total number of records does not exceed the limit per page, the method returns early without rendering any output — no unnecessary markup.
-    </p>
-  </div>
+ <h2>Description</h2>
+ <div class="description">
+ <p>
+ Renders pagination navigation controls with an optional "Showing X to Y of Z records" statement. This method processes the provided pagination configuration through the model layer for validation and data preparation, then outputs the complete pagination HTML including First, Previous, numbered page links, Next, and Last navigation controls.
+ </p>
+ <p>
+ The method intelligently handles several scenarios:
+ </p>
+ <ul>
+ <li>If <code>total_rows</code> does not exceed <code>limit</code>, no pagination markup is output — pagination is unnecessary for a single page of results.</li>
+ <li>If <code>pagination_root</code> is not provided, the module auto-detects the base URL from the current request.</li>
+ <li>If <code>page_num_segment</code> is not provided, the module auto-detects by checking if the last URL segment is numeric.</li>
+ <li>The current page is automatically extracted from the URL and validated against the total number of pages.</li>
+ <li>Page number links are intelligently centered around the current page, displaying a configurable maximum number of links.</li>
+ </ul>
+ </div>
 
-  <h2>Parameters</h2>
-  <table class="params-table">
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-        <th>Required</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>$pagination_data</td>
-        <td>array</td>
-        <td colspan="3">An associative array of pagination configuration (see below).</td>
-      </tr>
-    </tbody>
-  </table>
+ <h2>Parameters</h2>
+ <table class="params-table">
+ <thead>
+ <tr>
+ <th>Parameter</th>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>$pagination_data</code></td>
+ <td>array</td>
+ <td>An associative array containing pagination configuration. See the <strong>$pagination_data Keys</strong> section below for all available keys.</td>
+ </tr>
+ </tbody>
+ </table>
 
-  <h3>$pagination_data Keys</h3>
-  <table class="params-table">
-    <thead>
-      <tr>
-        <th>Key</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-        <th>Required</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>total_rows</td>
-        <td>int</td>
-        <td>The total number of records being paginated.</td>
-        <td>N/A</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td>limit</td>
-        <td>int</td>
-        <td>The number of records to display per page.</td>
-        <td>N/A</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td>record_name_plural</td>
-        <td>string</td>
-        <td>The plural name for the records (e.g., 'products', 'articles') used in the showing statement.</td>
-        <td>N/A</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td>include_showing_statement</td>
-        <td>bool</td>
-        <td>Whether to display a "Showing X to Y of Z records" statement above the pagination links.</td>
-        <td>false</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>page_num_segment</td>
-        <td>int|null</td>
-        <td>The URL segment containing the current page number. When <code>null</code>, the module auto-detects by checking if the last URL segment is numeric.</td>
-        <td>null</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>pagination_root</td>
-        <td>string|null</td>
-        <td>The base URL path for pagination links. When <code>null</code>, the module auto-detects from the current URL.</td>
-        <td>null</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>settings</td>
-        <td>array</td>
-        <td>Custom HTML wrapping for pagination links. Accepts keys such as <code>pagination_open</code>, <code>pagination_close</code>, <code>cur_link_open</code>, <code>cur_link_close</code>, <code>num_link_open</code>, <code>num_link_close</code>, <code>first_link</code>, <code>last_link</code>, <code>prev_link</code>, <code>next_link</code>, and their corresponding <code>*_aria_label</code> keys.</td>
-        <td>[]</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>include_css</td>
-        <td>bool</td>
-        <td>Whether to include default pagination CSS styling.</td>
-        <td>false</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>showing_statement</td>
-        <td>string|null</td>
-        <td>A custom showing statement template. Use <code>{start}</code>, <code>{end}</code>, and <code>{total}</code> as placeholders for dynamic values.</td>
-        <td>null</td>
-        <td>No</td>
-      </tr>
-      <tr>
-        <td>num_links_per_page</td>
-        <td>int</td>
-        <td>The maximum number of page number links to display at once.</td>
-        <td>7</td>
-        <td>No</td>
-      </tr>
-    </tbody>
-  </table>
+ <h3>$pagination_data Keys</h3>
+ <table class="params-table">
+ <thead>
+ <tr>
+ <th>Key</th>
+ <th>Type</th>
+ <th>Description</th>
+ <th>Default</th>
+ <th>Required</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>total_rows</code></td>
+ <td>int</td>
+ <td>The total number of records in the dataset being paginated. Used to calculate the total number of pages and to determine if pagination is necessary.</td>
+ <td>N/A</td>
+ <td><strong>Yes</strong></td>
+ </tr>
+ <tr>
+ <td><code>limit</code></td>
+ <td>int</td>
+ <td>The number of records to display per page. Used in conjunction with <code>total_rows</code> to calculate pagination. Must be a positive integer.</td>
+ <td>N/A</td>
+ <td><strong>Yes</strong></td>
+ </tr>
+ <tr>
+ <td><code>record_name_plural</code></td>
+ <td>string</td>
+ <td>The plural noun for the records being paginated (e.g., <code>'products'</code>, <code>'articles'</code>, <code>'tasks'</code>). Used in the default showing statement and for user-friendly messaging.</td>
+ <td>N/A</td>
+ <td><strong>Yes</strong></td>
+ </tr>
+ <tr>
+ <td><code>page_num_segment</code></td>
+ <td>int|null</td>
+ <td>The URL segment position (1-indexed) that contains the current page number. For example, in the URL <code>/tasks/manage/2</code>, the page number is in segment 3. When <code>null</code>, the module auto-detects by checking if the last URL segment is numeric.</td>
+ <td>null</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>pagination_root</code></td>
+ <td>string|null</td>
+ <td>The base URL path for pagination links (without the page number). For example: <code>'tasks/manage'</code> or <code>'products/browse'</code>. When <code>null</code>, the module auto-detects from the current URL by removing any trailing numeric segment and query strings. Should be specified as a relative path; <code>BASE_URL</code> is prepended automatically by the <code>build_link()</code> method.</td>
+ <td>null</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>include_showing_statement</code></td>
+ <td>bool</td>
+ <td>Whether to display a statement such as "Showing 1 to 10 of 25 tasks" above the pagination links. The statement is rendered using either the default English format or a custom template provided via the <code>showing_statement</code> key.</td>
+ <td>false</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>showing_statement</code></td>
+ <td>string|null</td>
+ <td>A custom template for the showing statement. Use placeholders <code>{start}</code>, <code>{end}</code>, and <code>{total}</code> to insert dynamic values. For example: <code>'Viewing {start}-{end} of {total} products'</code>. When <code>null</code>, the default English format is used: <code>'Showing {start} to {end} of {total} record_name_plural.'</code></td>
+ <td>null</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>num_links_per_page</code></td>
+ <td>int</td>
+ <td>The maximum number of individual page number links to display at once. The current page is centered within this range when possible. For example, with a value of 7, if you are on page 5, you would see pages 2, 3, 4, 5, 6, 7, 8. Minimum recommended value is 3.</td>
+ <td>7</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>settings</code></td>
+ <td>array</td>
+ <td>Custom HTML wrapping and labels for pagination elements. Allows you to control the markup structure and link text. See the <strong>Custom Settings</strong> section below for available keys.</td>
+ <td>Default settings array</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td><code>include_css</code></td>
+ <td>bool</td>
+ <td>Whether to include the default pagination CSS styling inline in the output.</td>
+ <td>false</td>
+ <td>No</td>
+ </tr>
+ </tbody>
+ </table>
 
-  <h2>Return Value</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>void</td>
-        <td>This method does not return a value. It outputs the pagination HTML directly.</td>
-      </tr>
-    </tbody>
-  </table>
+ <h3>Custom Settings</h3>
+ <p>The <code>settings</code> key accepts an array of custom HTML wrappers and labels. All of the following keys are optional and will use default values if not provided:</p>
 
-  <h2>Example #1</h2>
-  <p>Controller method demonstrating pagination setup for a tasks module. The pagination data is prepared in a private helper method and passed to the view. Pagination is rendered in the view using <code>Modules::run()</code>.</p>
-[code=php]class Tasks extends Trongate {
+ <table class="params-table">
+ <thead>
+ <tr>
+ <th>Setting Key</th>
+ <th>Description</th>
+ <th>Default Value</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>pagination_open</code></td>
+ <td>Opening HTML tag for the pagination container.</td>
+ <td><code>'&lt;div class="pagination"&gt;'</code></td>
+ </tr>
+ <tr>
+ <td><code>pagination_close</code></td>
+ <td>Closing HTML tag for the pagination container.</td>
+ <td><code>'&lt;/div&gt;'</code></td>
+ </tr>
+ <tr>
+ <td><code>cur_link_open</code></td>
+ <td>Opening HTML tag for the current (active) page link.</td>
+ <td><code>'&lt;a class="active"&gt;'</code></td>
+ </tr>
+ <tr>
+ <td><code>cur_link_close</code></td>
+ <td>Closing HTML tag for the current (active) page link.</td>
+ <td><code>'&lt;/a&gt;'</code></td>
+ </tr>
+ <tr>
+ <td><code>num_link_open</code></td>
+ <td>Opening HTML tag for numbered page links.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>num_link_close</code></td>
+ <td>Closing HTML tag for numbered page links.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>first_link</code></td>
+ <td>Text label for the "First" page link.</td>
+ <td><code>'First'</code></td>
+ </tr>
+ <tr>
+ <td><code>first_link_open</code></td>
+ <td>Opening HTML tag for the "First" link (only shown if not on page 1).</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>first_link_close</code></td>
+ <td>Closing HTML tag for the "First" link.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>first_link_aria_label</code></td>
+ <td>Accessibility label for the "First" link.</td>
+ <td><code>'First page'</code></td>
+ </tr>
+ <tr>
+ <td><code>last_link</code></td>
+ <td>Text label for the "Last" page link.</td>
+ <td><code>'Last'</code></td>
+ </tr>
+ <tr>
+ <td><code>last_link_open</code></td>
+ <td>Opening HTML tag for the "Last" link (only shown if not on final page).</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>last_link_close</code></td>
+ <td>Closing HTML tag for the "Last" link.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>last_link_aria_label</code></td>
+ <td>Accessibility label for the "Last" link.</td>
+ <td><code>'Last page'</code></td>
+ </tr>
+ <tr>
+ <td><code>prev_link</code></td>
+ <td>Text label for the "Previous" link. HTML entities are supported (e.g., <code>'&amp;laquo;'</code>).</td>
+ <td><code>'&amp;laquo;'</code> (left guillemet)</td>
+ </tr>
+ <tr>
+ <td><code>prev_link_open</code></td>
+ <td>Opening HTML tag for the "Previous" link (only shown if not on page 1).</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>prev_link_close</code></td>
+ <td>Closing HTML tag for the "Previous" link.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>prev_link_aria_label</code></td>
+ <td>Accessibility label for the "Previous" link.</td>
+ <td><code>'Previous page'</code></td>
+ </tr>
+ <tr>
+ <td><code>next_link</code></td>
+ <td>Text label for the "Next" link. HTML entities are supported (e.g., <code>'&amp;raquo;'</code>).</td>
+ <td><code>'&amp;raquo;'</code> (right guillemet)</td>
+ </tr>
+ <tr>
+ <td><code>next_link_open</code></td>
+ <td>Opening HTML tag for the "Next" link (only shown if not on final page).</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>next_link_close</code></td>
+ <td>Closing HTML tag for the "Next" link.</td>
+ <td><code>''</code> (empty string)</td>
+ </tr>
+ <tr>
+ <td><code>next_link_aria_label</code></td>
+ <td>Accessibility label for the "Next" link.</td>
+ <td><code>'Next page'</code></td>
+ </tr>
+ </tbody>
+ </table>
 
-    private int $default_limit = 20;
-    private array $per_page_options = [10, 20, 50, 100];
+ <h2>Return Value</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>void</td>
+ <td>This method does not return a value. It outputs the pagination HTML directly to the response buffer via <code>echo</code>.</td>
+ </tr>
+ </tbody>
+ </table>
 
-    public function manage(): void {
-        $this-&gt;trongate_security-&gt;make_sure_allowed();
+ <h2>Example #1: Basic Usage with Auto-detection</h2>
+ <p>Minimal configuration using auto-detection of page number and pagination root. Ideal for simple implementations.</p>
+ <pre><code>&lt;?php
+// In your controller
+public function manage(): void {
+ $this->trongate_security->make_sure_allowed();
 
-        $limit = $this-&gt;get_limit();
-        $rows = $this-&gt;model-&gt;fetch_records($limit, $this-&gt;get_offset());
+ $limit = 20;
+ $offset = ($this->get_current_page() - 1) * $limit;
+ $rows = $this->model->fetch_records($limit, $offset);
 
-        $data = [
-            'rows' =&gt; $rows,
-            'pagination_data' =&gt; $this-&gt;get_pagination_data($limit),
-            'view_module' =&gt; 'tasks',
-            'view_file' =&gt; 'manage'
-        ];
+ $data = [
+ 'rows' => $rows,
+ 'pagination_data' => [
+ 'total_rows' => $this->model->count_all(),
+ 'limit' => $limit,
+ 'record_name_plural' => 'tasks',
+ 'include_showing_statement' => true
+ ],
+ 'view_module' => 'tasks',
+ 'view_file' => 'manage'
+ ];
 
-        $this-&gt;templates-&gt;admin($data);
-    }
+ $this->templates->admin($data);
+}
+?&gt;</code></pre>
 
-    private function get_pagination_data(int $limit): array {
-        return [
-            'total_rows' =&gt; $this-&gt;model-&gt;count_all(),
-            'page_num_segment' =&gt; 3,
-            'limit' =&gt; $limit,
-            'pagination_root' =&gt; 'tasks/manage',
-            'record_name_plural' =&gt; 'tasks',
-            'include_showing_statement' =&gt; true
-        ];
-    }
+ <p>In your view file:</p>
+ <pre><code>&lt;?php
+echo Modules::run('pagination/display', $pagination_data);
+?&gt;</code></pre>
 
-    private function get_limit(): int {
-        // Returns records-per-page from session or default
-        return $_SESSION['selected_per_page'] ?? $this-&gt;default_limit;
-    }
+ <h2>Example #2: Explicit Configuration with Custom Settings</h2>
+ <p>Providing explicit pagination root, page segment, and custom HTML styling.</p>
+ <pre><code>&lt;?php
+$pagination_data = [
+ 'total_rows' => 487,
+ 'limit' => 20,
+ 'record_name_plural' => 'products',
+ 'page_num_segment' => 3,
+ 'pagination_root' => 'products/browse',
+ 'include_showing_statement' => true,
+ 'include_css' => true,
+ 'settings' => [
+ 'pagination_open' => '&lt;nav class="pagination-controls" role="navigation" aria-label="pagination"&gt;',
+ 'pagination_close' => '&lt;/nav&gt;',
+ 'cur_link_open' => '&lt;span class="page-number active"&gt;',
+ 'cur_link_close' => '&lt;/span&gt;',
+ 'first_link' => '« First',
+ 'last_link' => 'Last »',
+ 'prev_link' => '← Previous',
+ 'next_link' => 'Next →'
+ ]
+];
 
-    private function get_offset(): int {
-        $page_num = segment(3, 'int');
-        return ($page_num &gt; 1) ? ($page_num - 1) * $this-&gt;get_limit() : 0;
-    }
-}[/code]
+Modules::run('pagination/display', $pagination_data);
+?&gt;</code></pre>
 
-  <h2>Example #2</h2>
-  <p>View file (manage.php) showing how pagination is rendered. The pagination controls appear both above and below the records table. The <code>include_showing_statement</code> key is removed from the second call to avoid duplicate output.</p>
-[code=php]&lt;h1&gt;Manage Tasks&lt;/h1&gt;
+ <h2>Example #3: Custom Showing Statement with Custom Link Count</h2>
+ <p>Using a custom template for the showing statement and controlling the number of page links displayed.</p>
+ <pre><code>&lt;?php
+$pagination_data = [
+ 'total_rows' => 156,
+ 'limit' => 10,
+ 'record_name_plural' => 'articles',
+ 'pagination_root' => 'blog/articles',
+ 'include_showing_statement' => true,
+ 'showing_statement' => 'Items {start}–{end} of {total}',
+ 'num_links_per_page' => 5
+];
 
-&lt;?php
+Modules::run('pagination/display', $pagination_data);
+?&gt;</code></pre>
+
+ <h2>Example #4: Per-Page Selector Integration (Like the Tasks Module)</h2>
+ <p>Full implementation with user-configurable records per page, as demonstrated in the Tasks module.</p>
+ <pre><code>&lt;?php
+// In your controller
+private int $default_limit = 20;
+private array $per_page_options = [10, 20, 50, 100];
+
+public function manage(): void {
+ $this->trongate_security->make_sure_allowed();
+
+ // Get limit from session (user preference)
+ $limit = $this->get_limit();
+
+ // Calculate offset based on current page
+ $page_num = segment(3, 'int');
+ $offset = ($page_num > 1) ? ($page_num - 1) * $limit : 0;
+
+ // Fetch records
+ $rows = $this->model->fetch_records($limit, $offset);
+
+ // Prepare pagination data
+ $pagination_data = [
+ 'total_rows' => $this->model->count_all(),
+ 'page_num_segment' => 3,
+ 'limit' => $limit,
+ 'pagination_root' => 'tasks/manage',
+ 'record_name_plural' => 'tasks',
+ 'include_showing_statement' => true
+ ];
+
+ $data = [
+ 'rows' => $rows,
+ 'pagination_data' => $pagination_data,
+ 'per_page_options' => array_keys($this->per_page_options),
+ 'selected_per_page' => $_SESSION['selected_per_page'] ?? 1,
+ 'view_module' => 'tasks',
+ 'view_file' => 'manage'
+ ];
+
+ $this->templates->admin($data);
+}
+
+public function set_per_page(): void {
+ $this->trongate_security->make_sure_allowed();
+ $_SESSION['selected_per_page'] = segment(3, 'int');
+ redirect('tasks/manage');
+}
+
+private function get_limit(): int {
+ $per_page_options = [10, 20, 50, 100];
+ if (isset($_SESSION['selected_per_page'])) {
+ return $per_page_options[$_SESSION['selected_per_page']];
+ }
+ return $this->default_limit;
+}
+?&gt;</code></pre>
+
+ <p>In your view file:</p>
+ <pre><code>&lt;?php
 echo Modules::run('pagination/display', $pagination_data);
 ?&gt;
 
-&lt;table class="records-table"&gt;
-    &lt;thead&gt;
-        &lt;tr&gt;
-            &lt;th&gt;Task Title&lt;/th&gt;
-            &lt;th&gt;Complete&lt;/th&gt;
-            &lt;th&gt;Action&lt;/th&gt;
-        &lt;/tr&gt;
-    &lt;/thead&gt;
-    &lt;tbody&gt;
-        &lt;?php foreach($rows as $row) { ?&gt;
-        &lt;tr&gt;
-            &lt;td&gt;&lt;?= out($row-&gt;task_title) ?&gt;&lt;/td&gt;
-            &lt;td&gt;&lt;?= out($row-&gt;complete_formatted) ?&gt;&lt;/td&gt;
-            &lt;td&gt;&lt;?= anchor('tasks/show/'.$row-&gt;id, 'View') ?&gt;&lt;/td&gt;
-        &lt;/tr&gt;
-        &lt;?php } ?&gt;
-    &lt;/tbody&gt;
-&lt;/table&gt;
+&lt;select onchange="window.location.href = '&lt;?= BASE_URL ?&gt;tasks/set_per_page/' + this.value"&gt;
+ &lt;?php foreach($per_page_options as $index => $option): ?&gt;
+ &lt;option value="&lt;?= $index ?&gt;" &lt;?= ($selected_per_page == $index) ? 'selected' : '' ?&gt;&gt;
+ &lt;?= $option ?&gt; per page
+ &lt;/option&gt;
+ &lt;?php endforeach; ?&gt;
+&lt;/select&gt;</code></pre>
 
-&lt;?php
-// Second pagination block below table (without showing statement)
-unset($pagination_data['include_showing_statement']);
-echo Modules::run('pagination/display', $pagination_data);
-?&gt;[/code]
-
-  <h2>Example #3</h2>
-  <p>Customising pagination output with a showing statement that uses placeholders. The <code>showing_statement</code> key accepts <code>{start}</code>, <code>{end}</code>, and <code>{total}</code> as dynamic placeholders.</p>
-[code=php]$pagination_data = [
-    'total_rows' =&gt; $total_rows,
-    'limit' =&gt; 15,
-    'page_num_segment' =&gt; 3,
-    'pagination_root' =&gt; 'products/manage',
-    'record_name_plural' =&gt; 'products',
-    'include_showing_statement' =&gt; true,
-    'showing_statement' =&gt; 'Viewing {start} to {end} of {total} products'
-];
-
-echo Modules::run('pagination/display', $pagination_data);[/code]
+ <h2>Notes</h2>
+ <ul>
+ <li><strong>Early Return:</strong> If <code>total_rows</code> ≤ <code>limit</code>, the method returns without output. No pagination is needed for a single page of results.</li>
+ <li><strong>URL Structure:</strong> Page 1 uses the clean <code>pagination_root</code> URL; subsequent pages append the page number (e.g., <code>/tasks/manage/2</code>, <code>/tasks/manage/3</code>).</li>
+ <li><strong>Current Page Validation:</strong> If the current page exceeds the total number of pages (e.g., user manually edits the URL), the current page is clamped to the maximum page.</li>
+ <li><strong>Security:</strong> All URLs and ARIA labels are properly escaped using <code>htmlspecialchars()</code> with <code>ENT_QUOTES</code>.</li>
+ <li><strong>Accessibility:</strong> All navigation links include <code>aria-label</code> attributes for screen readers.</li>
+ <li><strong>Link Centering:</strong> The <code>num_links_per_page</code> parameter intelligently centers the current page within the link range. When near the beginning or end of the dataset, the range adjusts to always display the maximum number of links (when possible).</li>
+ </ul>
 
 </div>
