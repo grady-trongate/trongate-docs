@@ -265,19 +265,19 @@
 
  <h2>Example #1: Basic Usage with Auto-detection</h2>
  <p>Minimal configuration using auto-detection of page number and pagination root. Ideal for simple implementations.</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 // In your controller
 public function manage(): void {
- $this->trongate_security->make_sure_allowed();
+ $this-&gt;trongate_security-&gt;make_sure_allowed();
 
  $limit = 20;
- $offset = ($this->get_current_page() - 1) * $limit;
- $rows = $this->model->fetch_records($limit, $offset);
+ $offset = ($this-&gt;get_current_page() - 1) * $limit;
+ $rows = $this-&gt;model-&gt;fetch_records($limit, $offset);
 
  $data = [
  'rows' => $rows,
  'pagination_data' => [
- 'total_rows' => $this->model->count_all(),
+ 'total_rows' => $this-&gt;model-&gt;count_all(),
  'limit' => $limit,
  'record_name_plural' => 'tasks',
  'include_showing_statement' => true
@@ -286,18 +286,18 @@ public function manage(): void {
  'view_file' => 'manage'
  ];
 
- $this->templates->admin($data);
+ $this-&gt;templates-&gt;admin($data);
 }
-?&gt;</code></pre>
+?&gt;[/code]
 
  <p>In your view file:</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 echo Modules::run('pagination/display', $pagination_data);
-?&gt;</code></pre>
+?&gt;[/code]
 
  <h2>Example #2: Explicit Configuration with Custom Settings</h2>
  <p>Providing explicit pagination root, page segment, and custom HTML styling.</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 $pagination_data = [
  'total_rows' => 487,
  'limit' => 20,
@@ -319,11 +319,11 @@ $pagination_data = [
 ];
 
 Modules::run('pagination/display', $pagination_data);
-?&gt;</code></pre>
+?&gt;[/code]
 
  <h2>Example #3: Custom Showing Statement with Custom Link Count</h2>
  <p>Using a custom template for the showing statement and controlling the number of page links displayed.</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 $pagination_data = [
  'total_rows' => 156,
  'limit' => 10,
@@ -335,31 +335,31 @@ $pagination_data = [
 ];
 
 Modules::run('pagination/display', $pagination_data);
-?&gt;</code></pre>
+?&gt;[/code]
 
  <h2>Example #4: Per-Page Selector Integration (Like the Tasks Module)</h2>
  <p>Full implementation with user-configurable records per page, as demonstrated in the Tasks module.</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 // In your controller
 private int $default_limit = 20;
 private array $per_page_options = [10, 20, 50, 100];
 
 public function manage(): void {
- $this->trongate_security->make_sure_allowed();
+ $this-&gt;trongate_security-&gt;make_sure_allowed();
 
  // Get limit from session (user preference)
- $limit = $this->get_limit();
+ $limit = $this-&gt;get_limit();
 
  // Calculate offset based on current page
  $page_num = segment(3, 'int');
  $offset = ($page_num > 1) ? ($page_num - 1) * $limit : 0;
 
  // Fetch records
- $rows = $this->model->fetch_records($limit, $offset);
+ $rows = $this-&gt;model-&gt;fetch_records($limit, $offset);
 
  // Prepare pagination data
  $pagination_data = [
- 'total_rows' => $this->model->count_all(),
+ 'total_rows' => $this-&gt;model-&gt;count_all(),
  'page_num_segment' => 3,
  'limit' => $limit,
  'pagination_root' => 'tasks/manage',
@@ -370,17 +370,17 @@ public function manage(): void {
  $data = [
  'rows' => $rows,
  'pagination_data' => $pagination_data,
- 'per_page_options' => array_keys($this->per_page_options),
+ 'per_page_options' => array_keys($this-&gt;per_page_options),
  'selected_per_page' => $_SESSION['selected_per_page'] ?? 1,
  'view_module' => 'tasks',
  'view_file' => 'manage'
  ];
 
- $this->templates->admin($data);
+ $this-&gt;templates-&gt;admin($data);
 }
 
 public function set_per_page(): void {
- $this->trongate_security->make_sure_allowed();
+ $this-&gt;trongate_security-&gt;make_sure_allowed();
  $_SESSION['selected_per_page'] = segment(3, 'int');
  redirect('tasks/manage');
 }
@@ -390,12 +390,12 @@ private function get_limit(): int {
  if (isset($_SESSION['selected_per_page'])) {
  return $per_page_options[$_SESSION['selected_per_page']];
  }
- return $this->default_limit;
+ return $this-&gt;default_limit;
 }
-?&gt;</code></pre>
+?&gt;[/code]
 
  <p>In your view file:</p>
- <pre><code>&lt;?php
+ [code=php]&lt;?php
 echo Modules::run('pagination/display', $pagination_data);
 ?&gt;
 
@@ -405,7 +405,7 @@ echo Modules::run('pagination/display', $pagination_data);
  &lt;?= $option ?&gt; per page
  &lt;/option&gt;
  &lt;?php endforeach; ?&gt;
-&lt;/select&gt;</code></pre>
+&lt;/select&gt;[/code]
 
  <h2>Notes</h2>
  <ul>
