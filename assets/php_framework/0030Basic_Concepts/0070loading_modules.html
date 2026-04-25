@@ -15,17 +15,17 @@
 &lt;?php
 class Members extends Trongate {
 
-    function profile() {
-        // go nuts
-    }
+ function profile() {
+ // go nuts
+ }
 
 }
 [/code]
 
 <div class="alert alert-warning">
-    <p><strong>Important Trongate v2 Change!</strong></p>
-    <p>URL segments are <strong>no longer</strong> automatically passed as method parameters. This improves security and performance.</p>
-    <p>Use the <span class="feature-ref">segment()</span> function to explicitly fetch URL parameters when you need them.</p>
+ <p><strong>Important Trongate v2 Change!</strong></p>
+ <p>URL segments are <strong>no longer</strong> automatically passed as method parameters. This improves security and performance.</p>
+ <p>Use the <span class="feature-ref">segment()</span> function to explicitly fetch URL parameters when you need them.</p>
 </div>
 
 <h2>2. From Code (the fun way)</h2>
@@ -36,31 +36,37 @@ class Members extends Trongate {
 $vat = $this-&gt;tax-&gt;calculate($amount);
 [/code]
 
-<p>Inside any view, use <span class="feature-ref">class_reference-the_modules_class-run()</span>:</p>
+<p>Inside any view, use <code>Modules::run()</code>. For example,</p>
 [code=php]
 &lt;div&gt;&lt;?= Modules::run('users/stats', $user_data) ?&gt;&lt;/div&gt;
 [/code]
 
 <div class="alert alert-info">
-    <p><strong>Attention Trongate v1 veterans!!!</strong></p>
-    <p><code>$this-&gt;module('tax')</code> is dead. We murdered it in v2.  There's no longer any need to write that.</p>
-    <p>You're <em>very</em> welcome.</p>
+ <p><strong>Attention Trongate v1 veterans!!!</strong></p>
+ <p><code>$this-&gt;module('tax')</code> is dead. We murdered it in v2. There's no longer any need to write that.</p>
+ <p>You're <em>very</em> welcome.</p>
 </div>
 
-<h2><span class="feature-ref">class_reference-the_modules_class-run()</span> — Pass <strong>ANYTHING</strong>.</h2>
+<h2>Passing Data? Pass <strong>anything</strong>.</h2>
+
+<p>
+ The <code>run()</code> method within
+ <a href="documentation-ref/information/class_reference/the-modules-class/run" target="_blank">The Modules Class</a>
+ accepts an optional argument of any type. Strings, arrays, booleans, numbers - it's all fair game.
+</p>
 
 <div class="alert alert-success">
-    <p>The second parameter of <code>Modules::run()</code> accepts <strong>ANY PHP data type</strong>:</p>
-    <ul>
-        <li><strong>Arrays</strong> - Pass complex datasets</li>
-        <li><strong>Integers/Floats</strong> - Pass numeric values</li>
-        <li><strong>Strings</strong> - Pass text content</li>
-        <li><strong>Booleans</strong> - Pass true/false flags</li>
-        <li><strong>Objects</strong> - Pass complete objects</li>
-        <li><strong>Resources</strong> - Pass file handles, database connections</li>
-        <li><strong>NULL</strong> - Pass nothing explicitly</li>
-    </ul>
-    <p class="mb-0"><strong>One parameter. Every data type. Unlimited possibilities.</strong></p>
+ <p>The second parameter of <code>Modules::run()</code> accepts <strong>ANY PHP data type</strong>:</p>
+ <ul>
+ <li><strong>Arrays</strong> - Pass complex datasets</li>
+ <li><strong>Integers/Floats</strong> - Pass numeric values</li>
+ <li><strong>Strings</strong> - Pass text content</li>
+ <li><strong>Booleans</strong> - Pass true/false flags</li>
+ <li><strong>Objects</strong> - Pass complete objects</li>
+ <li><strong>Resources</strong> - Pass file handles, database connections</li>
+ <li><strong>NULL</strong> - Pass nothing explicitly</li>
+ </ul>
+ <p class="mb-0"><strong>One parameter. Every data type. Unlimited possibilities.</strong></p>
 </div>
 
 <h3>EXAMPLES</h3>
@@ -87,13 +93,13 @@ $html = Modules::run('ui/render_widget', true); // true = show advanced version
 [code=php]
 // Pass a complete dataset as an array
 $order_data = [
-    'order_id' =&gt; 12345,
-    'customer' =&gt; 'Jane Smith',
-    'items' =&gt; [
-        ['id' =&gt; 1, 'qty' =&gt; 2, 'price' =&gt; 19.99],
-        ['id' =&gt; 2, 'qty' =&gt; 1, 'price' =&gt; 49.99]
-    ],
-    'shipping' =&gt; 'express'
+ 'order_id' =&gt; 12345,
+ 'customer' =&gt; 'Jane Smith',
+ 'items' =&gt; [
+ ['id' =&gt; 1, 'qty' =&gt; 2, 'price' =&gt; 19.99],
+ ['id' =&gt; 2, 'qty' =&gt; 1, 'price' =&gt; 49.99]
+ ],
+ 'shipping' =&gt; 'express'
 ];
 $invoice = Modules::run('orders/generate_invoice', $order_data);
 [/code]
@@ -104,9 +110,7 @@ $invoice = Modules::run('orders/generate_invoice', $order_data);
 $user = new stdClass();
 $user-&gt;id = 88;
 $user-&gt;name = 'John Doe';
-$user-&gt;email = 'john@example.com';
-
-$welcome = Modules::run('messages/welcome_user', $user);
+$user-&gt;email = 'john@example.com';$welcome = Modules::run('messages/welcome_user', $user);
 [/code]
 
 <p><strong>Example 6: Pass NULL (explicitly pass nothing)</strong></p>
@@ -119,28 +123,28 @@ $default_view = Modules::run('dashboard/load_default', null);
 [code=php]
 &lt;?php
 class Users extends Trongate {
-    
-    // Your method receives WHATEVER you pass
-    public function stats($data) {
-        // $data could be ANYTHING:
-        // - An array of user data
-        // - A single user ID (integer)
-        // - A user object
-        // - A boolean flag
-        // - NULL
-        
-        // Type checking is YOUR responsibility
-        if (is_array($data)) {
-            // Handle array
-        } elseif (is_int($data)) {
-            // Handle integer ID
-        } elseif (is_object($data)) {
-            // Handle object
-        }
-        
-        // Or just trust your code and use it directly
-        return "Processed data of type: " . gettype($data);
-    }
+
+ // Your method receives WHATEVER you pass
+ public function stats($data) {
+ // $data could be ANYTHING:
+ // - An array of user data
+ // - A single user ID (integer)
+ // - A user object
+ // - A boolean flag
+ // - NULL
+
+ // Type checking is YOUR responsibility
+ if (is_array($data)) {
+ // Handle array
+ } elseif (is_int($data)) {
+ // Handle integer ID
+ } elseif (is_object($data)) {
+ // Handle object
+ }
+
+ // Or just trust your code and use it directly
+ return "Processed data of type: " . gettype($data);
+ }
 }
 ?&gt;
 [/code]
